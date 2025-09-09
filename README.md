@@ -61,5 +61,5 @@ Toda la documentación detallada del proyecto está disponible en Google Drive:
 - ✨ **andres felipe garcia**
   ✨ **diego alejandro muñoz**
   ✨ **johan sebastian peña**
-  ✨ **juan camilo borrero**
+  ✨ **juan camilo forero**
 ---
