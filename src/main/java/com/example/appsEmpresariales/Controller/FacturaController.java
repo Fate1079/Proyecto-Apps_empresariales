@@ -4,6 +4,8 @@ import com.example.appsEmpresariales.Service.FacturaService;
 import com.example.appsEmpresariales.dto.FacturaDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -16,7 +18,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/facturas")
-@Tag(name = "facturas", description = "API para la gestión de facturas")
+@Tag(name = "Facturas", description = "API para la gestión de facturas")
 public class FacturaController {
 
     private final FacturaService facturaService;
@@ -28,8 +30,13 @@ public class FacturaController {
 
     // -------- CRUD --------
     @GetMapping
-    @Operation(summary = "Obtener todas las facturas")
-    @ApiResponse(responseCode = "200", description = "Facturas obtenidas con éxito")
+    @Operation(summary = "Obtener todas las facturas", description = "Devuelve una lista de todas las facturas registradas")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Facturas obtenidas con éxito",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = FacturaDTO.class))),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
     public ResponseEntity<List<FacturaDTO>> getAllFacturas() {
         return ResponseEntity.ok(facturaService.findAll());
     }
@@ -37,7 +44,9 @@ public class FacturaController {
     @GetMapping("/{id}")
     @Operation(summary = "Obtener una factura por ID")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Factura encontrada"),
+            @ApiResponse(responseCode = "200", description = "Factura encontrada",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = FacturaDTO.class))),
             @ApiResponse(responseCode = "404", description = "Factura no encontrada")
     })
     public ResponseEntity<FacturaDTO> getFacturaById(
@@ -48,7 +57,12 @@ public class FacturaController {
 
     @PostMapping
     @Operation(summary = "Crear una nueva factura")
-    @ApiResponse(responseCode = "201", description = "Factura creada exitosamente")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Factura creada exitosamente",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = FacturaDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Datos inválidos para la creación de la factura")
+    })
     public ResponseEntity<FacturaDTO> crearFactura(
             @RequestBody @Parameter(description = "Datos de la factura a crear") FacturaDTO factura) {
         return ResponseEntity.status(HttpStatus.CREATED).body(facturaService.save(factura));
@@ -57,7 +71,9 @@ public class FacturaController {
     @PutMapping("/{id}")
     @Operation(summary = "Actualizar una factura existente")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Factura actualizada exitosamente"),
+            @ApiResponse(responseCode = "200", description = "Factura actualizada exitosamente",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = FacturaDTO.class))),
             @ApiResponse(responseCode = "404", description = "Factura no encontrada")
     })
     public ResponseEntity<FacturaDTO> actualizarFactura(
@@ -69,7 +85,7 @@ public class FacturaController {
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Eliminar una factura por ID")
+    @Operation(summary = "Eliminar una factura por ID", description = "Elimina la factura con el ID especificado")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Factura eliminada exitosamente"),
             @ApiResponse(responseCode = "404", description = "Factura no encontrada")
@@ -83,7 +99,9 @@ public class FacturaController {
     @GetMapping("/numero/{numeroFactura}")
     @Operation(summary = "Obtener una factura por número de factura")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Factura encontrada"),
+            @ApiResponse(responseCode = "200", description = "Factura encontrada",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = FacturaDTO.class))),
             @ApiResponse(responseCode = "404", description = "Factura no encontrada")
     })
     public ResponseEntity<FacturaDTO> getFacturaByNumero(
