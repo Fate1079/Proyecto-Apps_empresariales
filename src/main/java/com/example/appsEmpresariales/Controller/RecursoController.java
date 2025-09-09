@@ -105,5 +105,5 @@ public class RecursoController {
     public ResponseEntity<List<RecursoDTO>> getRecursosPorEstado(@PathVariable String estado) {
         return ResponseEntity.ok(recursoService.obtenerRecursosPorEstado(estado));
     }
-    //A//
+
 }

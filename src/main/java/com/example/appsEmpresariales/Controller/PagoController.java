@@ -30,11 +30,16 @@ public class PagoController {
 
     // -------- CRUD --------
     @GetMapping
-    @Operation(summary = "Obtener todos los pagos", description = "Devuelve una lista de todos los pagos registrados")
+    @Operation(
+            summary = "Obtener todos los pagos",
+            description = "Este endpoint devuelve una lista con todos los pagos registrados en el sistema, incluyendo su estado, monto y fecha."
+    )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Pagos obtenidos con éxito",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = PagoDTO.class))),
+            @ApiResponse(responseCode = "204", description = "No existen pagos registrados"),
+            @ApiResponse(responseCode = "400", description = "Solicitud inválida"),
             @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
     public ResponseEntity<List<PagoDTO>> getAllPagos() {
@@ -42,39 +47,54 @@ public class PagoController {
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Obtener un pago por ID")
+    @Operation(
+            summary = "Obtener un pago por ID",
+            description = "Devuelve los datos de un pago específico según el ID proporcionado."
+    )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Pago encontrado",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = PagoDTO.class))),
-            @ApiResponse(responseCode = "404", description = "Pago no encontrado")
+            @ApiResponse(responseCode = "400", description = "ID inválido"),
+            @ApiResponse(responseCode = "404", description = "Pago no encontrado"),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
     public ResponseEntity<PagoDTO> getPagoById(
-            @PathVariable @Parameter(description = "ID del pago") String id) {
+            @PathVariable @Parameter(description = "ID del pago a consultar") String id) {
         PagoDTO pago = pagoService.obtenerPagoPorId(id);
         return pago != null ? ResponseEntity.ok(pago) : ResponseEntity.notFound().build();
     }
 
     @PostMapping
-    @Operation(summary = "Crear un nuevo pago")
+    @Operation(
+            summary = "Crear un nuevo pago",
+            description = "Permite registrar un nuevo pago en el sistema enviando los datos correspondientes en el cuerpo de la solicitud."
+    )
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Pago creado exitosamente",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = PagoDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Datos inválidos para la creación del pago")
+            @ApiResponse(responseCode = "400", description = "Datos inválidos para la creación del pago"),
+            @ApiResponse(responseCode = "409", description = "Conflicto: el pago ya existe"),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
     public ResponseEntity<PagoDTO> crearPago(
-            @RequestBody @Parameter(description = "Datos del pago a crear") PagoDTO pago) {
+            @RequestBody @Parameter(description = "Datos del pago a registrar") PagoDTO pago) {
         return ResponseEntity.status(HttpStatus.CREATED).body(pagoService.guardarPago(pago));
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "Actualizar un pago existente")
+    @Operation(
+            summary = "Actualizar un pago existente",
+            description = "Modifica los datos de un pago ya registrado, identificándolo mediante su ID."
+    )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Pago actualizado exitosamente",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = PagoDTO.class))),
-            @ApiResponse(responseCode = "404", description = "Pago no encontrado")
+            @ApiResponse(responseCode = "400", description = "Datos inválidos para la actualización"),
+            @ApiResponse(responseCode = "404", description = "Pago no encontrado"),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
     public ResponseEntity<PagoDTO> actualizarPago(
             @PathVariable String id,
@@ -85,10 +105,15 @@ public class PagoController {
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Eliminar un pago por ID", description = "Elimina el pago con el ID especificado")
+    @Operation(
+            summary = "Eliminar un pago por ID",
+            description = "Elimina de manera permanente el registro de un pago identificado por su ID."
+    )
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Pago eliminado exitosamente"),
-            @ApiResponse(responseCode = "404", description = "Pago no encontrado")
+            @ApiResponse(responseCode = "400", description = "ID inválido"),
+            @ApiResponse(responseCode = "404", description = "Pago no encontrado"),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
     public ResponseEntity<Void> eliminarPago(@PathVariable String id) {
         pagoService.eliminarPago(id);
@@ -97,11 +122,17 @@ public class PagoController {
 
     // -------- Búsqueda --------
     @GetMapping("/estado/{estado}")
-    @Operation(summary = "Obtener pagos por estado", description = "Devuelve todos los pagos que coincidan con el estado especificado")
+    @Operation(
+            summary = "Obtener pagos por estado",
+            description = "Devuelve una lista de pagos filtrados según el estado proporcionado (ejemplo: PENDIENTE, COMPLETADO, CANCELADO)."
+    )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Pagos obtenidos con éxito",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = PagoDTO.class)))
+                            schema = @Schema(implementation = PagoDTO.class))),
+            @ApiResponse(responseCode = "204", description = "No existen pagos con el estado especificado"),
+            @ApiResponse(responseCode = "400", description = "Estado inválido"),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
     public ResponseEntity<List<PagoDTO>> getPagosPorEstado(@PathVariable String estado) {
         return ResponseEntity.ok(pagoService.obtenerPagosPorEstado(estado));
