@@ -8,22 +8,16 @@ import java.time.LocalDate;
 public class NotificacionEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    @Column(nullable = false, length = 500)
     private String mensaje;
 
-    @Column(nullable = false)
     private String tipo;
 
-    @Column(nullable = false)
     private LocalDate fechaEnvio;
 
-    @Column(nullable = false)
     private String idUsuario;
 
-    // -------- Constructores --------
     public NotificacionEntity() {}
 
     public NotificacionEntity(String id, String mensaje, String tipo, LocalDate fechaEnvio, String idUsuario) {
@@ -34,7 +28,6 @@ public class NotificacionEntity {
         this.idUsuario = idUsuario;
     }
 
-    // -------- Getters & Setters --------
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
 

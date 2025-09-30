@@ -1,43 +1,65 @@
 package com.example.appsEmpresariales.Service;
 
-import com.example.appsEmpresariales.Repitory.FacturaRepository;
+import com.example.appsEmpresariales.Entity.FacturaEntity;
+import com.example.appsEmpresariales.Repository.FacturaRepository;
 import com.example.appsEmpresariales.dto.FacturaDTO;
+import com.example.appsEmpresariales.Mapper.FacturaMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class FacturaService {
 
     private final FacturaRepository facturaRepository;
+    private final FacturaMapper facturaMapper;
 
-    public FacturaService(FacturaRepository facturaRepository) {
+    public FacturaService(FacturaRepository facturaRepository, FacturaMapper facturaMapper) {
         this.facturaRepository = facturaRepository;
+        this.facturaMapper = facturaMapper;
     }
 
-    // -------- CRUD --------
-    public FacturaDTO save(FacturaDTO factura) {
-        return facturaRepository.save(factura);
+    // Crear
+    public FacturaDTO save(FacturaDTO dto) {
+        FacturaEntity entity = facturaMapper.toEntity(dto);
+        FacturaEntity guardada = facturaRepository.save(entity);
+        return facturaMapper.toDto(guardada);
     }
 
+    // Leer por ID
     public FacturaDTO findById(String id) {
-        return facturaRepository.findById(id);
+        return facturaRepository.findById(id)
+                .map(facturaMapper::toDto)
+                .orElse(null);
     }
 
+    // Leer todas
     public List<FacturaDTO> findAll() {
-        return facturaRepository.findAll();
+        return facturaRepository.findAll()
+                .stream()
+                .map(facturaMapper::toDto)
+                .collect(Collectors.toList());
     }
 
-    public FacturaDTO update(FacturaDTO factura) {
-        return facturaRepository.update(factura);
+    // Actualizar
+    public FacturaDTO update(FacturaDTO dto) {
+        if (facturaRepository.existsById(dto.getId())) {
+            FacturaEntity entity = facturaMapper.toEntity(dto);
+            FacturaEntity actualizada = facturaRepository.save(entity);
+            return facturaMapper.toDto(actualizada);
+        }
+        return null;
     }
 
+    // Eliminar
     public void deleteById(String id) {
         facturaRepository.deleteById(id);
     }
 
-    // -------- Búsquedas específicas --------
+    // Buscar por número de factura
     public FacturaDTO findByNumeroFactura(String numeroFactura) {
-        return facturaRepository.findByNumeroFactura(numeroFactura);
+        FacturaEntity entity = facturaRepository.findByNumeroFactura(numeroFactura);
+        return entity != null ? facturaMapper.toDto(entity) : null;
     }
 }

@@ -1,30 +1,42 @@
 package com.example.appsEmpresariales.Service;
 
-import com.example.appsEmpresariales.Repitory.PagoRepository;
+import com.example.appsEmpresariales.Entity.PagoEntity;
+import com.example.appsEmpresariales.Repository.PagoRepository;
 import com.example.appsEmpresariales.dto.PagoDTO;
+import com.example.appsEmpresariales.Mapper.PagoMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class PagoService {
 
     private final PagoRepository pagoRepository;
+    private final PagoMapper pagoMapper;
 
-    public PagoService(PagoRepository pagoRepository) {
+    public PagoService(PagoRepository pagoRepository, PagoMapper pagoMapper) {
         this.pagoRepository = pagoRepository;
+        this.pagoMapper = pagoMapper;
     }
 
     public PagoDTO guardarPago(PagoDTO pago) {
-        return pagoRepository.save(pago);
+        PagoEntity entity = pagoMapper.toEntity(pago);
+        PagoEntity guardado = pagoRepository.save(entity);
+        return pagoMapper.toDto(guardado);
     }
 
     public PagoDTO obtenerPagoPorId(String id) {
-        return pagoRepository.findById(id);
+        return pagoRepository.findById(id)
+                .map(pagoMapper::toDto)
+                .orElse(null);
     }
 
     public List<PagoDTO> obtenerTodosLosPagos() {
-        return pagoRepository.findAll();
+        return pagoRepository.findAll()
+                .stream()
+                .map(pagoMapper::toDto)
+                .collect(Collectors.toList());
     }
 
     public void eliminarPago(String id) {
@@ -32,10 +44,18 @@ public class PagoService {
     }
 
     public PagoDTO actualizarPago(PagoDTO pago) {
-        return pagoRepository.update(pago);
+        if (pagoRepository.existsById(pago.getId())) {
+            PagoEntity entity = pagoMapper.toEntity(pago);
+            PagoEntity actualizado = pagoRepository.save(entity);
+            return pagoMapper.toDto(actualizado);
+        }
+        return null;
     }
 
     public List<PagoDTO> obtenerPagosPorEstado(String estado) {
-        return pagoRepository.findByEstado(estado);
+        return pagoRepository.findByEstadoPago(estado)
+                .stream()
+                .map(pagoMapper::toDto)
+                .collect(Collectors.toList());
     }
 }

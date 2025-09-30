@@ -8,25 +8,22 @@ import java.time.LocalDate;
 public class PagoEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    @Column(nullable = false)
     private double monto;
 
-    @Column(nullable = false)
+    @Column(name = "fecha_pago")
     private LocalDate fechaPago;
 
-    @Column(nullable = false)
+    @Column(name = "metodo_pago")
     private String metodoPago;
 
-    @Column(nullable = false)
+    @Column(name = "estado_pago")
     private String estadoPago;
 
-    @Column(nullable = false)
+    @Column(name = "id_reserva")
     private String idReserva;
 
-    // -------- Constructores --------
     public PagoEntity() {}
 
     public PagoEntity(String id, double monto, LocalDate fechaPago, String metodoPago, String estadoPago, String idReserva) {
@@ -38,7 +35,6 @@ public class PagoEntity {
         this.idReserva = idReserva;
     }
 
-    // -------- Getters & Setters --------
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
 

@@ -1,32 +1,44 @@
 package com.example.appsEmpresariales.Service;
 
-import com.example.appsEmpresariales.Repitory.ReservaRepository;
+import com.example.appsEmpresariales.Entity.ReservaEntity;
+import com.example.appsEmpresariales.Repository.ReservaRepository;
 import com.example.appsEmpresariales.dto.ReservaDTO;
+import com.example.appsEmpresariales.Mapper.ReservaMapper;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ReservaService {
 
     private final ReservaRepository reservaRepository;
+    private final ReservaMapper reservaMapper;
 
-    public ReservaService(ReservaRepository reservaRepository) {
+    public ReservaService(ReservaRepository reservaRepository, ReservaMapper reservaMapper) {
         this.reservaRepository = reservaRepository;
+        this.reservaMapper = reservaMapper;
     }
 
     // -------- CRUD --------
     public ReservaDTO guardarReserva(ReservaDTO reserva) {
-        return reservaRepository.save(reserva);
+        ReservaEntity entity = reservaMapper.toEntity(reserva);
+        ReservaEntity guardado = reservaRepository.save(entity);
+        return reservaMapper.toDto(guardado);
     }
 
     public ReservaDTO obtenerReservaPorId(String id) {
-        return reservaRepository.findById(id);
+        return reservaRepository.findById(id)
+                .map(reservaMapper::toDto)
+                .orElse(null);
     }
 
     public List<ReservaDTO> obtenerTodasLasReservas() {
-        return reservaRepository.findAll();
+        return reservaRepository.findAll()
+                .stream()
+                .map(reservaMapper::toDto)
+                .collect(Collectors.toList());
     }
 
     public void eliminarReserva(String id) {
@@ -34,24 +46,41 @@ public class ReservaService {
     }
 
     public ReservaDTO actualizarReserva(ReservaDTO reserva) {
-        return reservaRepository.update(reserva);
+        if (reservaRepository.existsById(reserva.getId())) {
+            ReservaEntity entity = reservaMapper.toEntity(reserva);
+            ReservaEntity actualizado = reservaRepository.save(entity);
+            return reservaMapper.toDto(actualizado);
+        }
+        return null;
     }
 
     // -------- Búsquedas --------
     public List<ReservaDTO> obtenerReservasPorUsuario(String usuario) {
-        return reservaRepository.findByUsuario(usuario);
+        return reservaRepository.findByUsuario(usuario)
+                .stream()
+                .map(reservaMapper::toDto)
+                .collect(Collectors.toList());
     }
 
     public List<ReservaDTO> obtenerReservasPorEstado(String estado) {
-        return reservaRepository.findByEstado(estado);
+        return reservaRepository.findByEstado(estado)
+                .stream()
+                .map(reservaMapper::toDto)
+                .collect(Collectors.toList());
     }
 
     public List<ReservaDTO> obtenerReservasPorRecurso(String recurso) {
-        return reservaRepository.findByRecurso(recurso);
+        return reservaRepository.findByRecurso(recurso)
+                .stream()
+                .map(reservaMapper::toDto)
+                .collect(Collectors.toList());
     }
 
     public List<ReservaDTO> obtenerReservasPorRangoFechas(LocalDate inicio, LocalDate fin) {
-        return reservaRepository.findByRangoFechas(inicio, fin);
+        return reservaRepository.findByFechaInicioBetween(inicio, fin)
+                .stream()
+                .map(reservaMapper::toDto)
+                .collect(Collectors.toList());
     }
 
     // -------- Utilitarios --------

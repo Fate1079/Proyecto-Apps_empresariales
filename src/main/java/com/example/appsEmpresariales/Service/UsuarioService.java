@@ -1,44 +1,74 @@
 package com.example.appsEmpresariales.Service;
 
-import com.example.appsEmpresariales.Repitory.UsuarioRepository;
+import com.example.appsEmpresariales.Entity.UsuarioEntity;
+import com.example.appsEmpresariales.Mapper.UsuarioMapper;
+import com.example.appsEmpresariales.Repository.UsuarioRepository;
 import com.example.appsEmpresariales.dto.UsuarioDTO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
 
+    @Autowired
     public UsuarioService(UsuarioRepository usuarioRepository) {
         this.usuarioRepository = usuarioRepository;
     }
 
     // -------- CRUD --------
-    public UsuarioDTO guardarUsuario(UsuarioDTO usuario) {
-        return usuarioRepository.save(usuario);
+
+    public List<UsuarioDTO> obtenerTodosLosUsuarios() {
+        return usuarioRepository.findAll()
+                .stream()
+                .map(UsuarioMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
     public UsuarioDTO obtenerUsuarioPorId(String id) {
-        return usuarioRepository.findById(id);
+        Optional<UsuarioEntity> usuarioOpt = usuarioRepository.findById(id);
+        return usuarioOpt.map(UsuarioMapper::toDTO).orElse(null);
     }
 
-    public List<UsuarioDTO> obtenerTodosLosUsuarios() {
-        return usuarioRepository.findAll();
+    public UsuarioDTO guardarUsuario(UsuarioDTO usuarioDTO) {
+        // Verificamos que el email no exista
+        if (usuarioRepository.existsByEmail(usuarioDTO.getEmail())) {
+            throw new RuntimeException("El email ya está registrado.");
+        }
+
+        UsuarioEntity entity = UsuarioMapper.toEntity(usuarioDTO);
+        UsuarioEntity guardado = usuarioRepository.save(entity);
+        return UsuarioMapper.toDTO(guardado);
+    }
+
+    public UsuarioDTO actualizarUsuario(UsuarioDTO usuarioDTO) {
+        if (!usuarioRepository.existsById(usuarioDTO.getId())) {
+            return null; // Not found
+        }
+        UsuarioEntity entity = UsuarioMapper.toEntity(usuarioDTO);
+        UsuarioEntity actualizado = usuarioRepository.save(entity);
+        return UsuarioMapper.toDTO(actualizado);
     }
 
     public void eliminarUsuario(String id) {
+        if (!usuarioRepository.existsById(id)) {
+            throw new RuntimeException("Usuario no encontrado con id: " + id);
+        }
         usuarioRepository.deleteById(id);
     }
 
-    public UsuarioDTO actualizarUsuario(UsuarioDTO usuario) {
-        return usuarioRepository.update(usuario);
-    }
+    // -------- Consultas personalizadas --------
 
-    // -------- Búsquedas --------
     public List<UsuarioDTO> obtenerUsuariosPorRol(String rol) {
-        return usuarioRepository.findByRol(rol);
+        return usuarioRepository.findByRol(rol)
+                .stream()
+                .map(UsuarioMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
     public boolean existeUsuarioPorEmail(String email) {
