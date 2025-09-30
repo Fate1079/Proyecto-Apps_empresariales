@@ -48,4 +48,5 @@ public class NotificacionEntity {
     public void setFechaEnvio(LocalDate fechaEnvio) { this.fechaEnvio = fechaEnvio; }
 
     public String getIdUsuario() { return idUsuario; }
-    publ
+    public void setIdUsuario(String idUsuario) { this.idUsuario = idUsuario; }
+}
