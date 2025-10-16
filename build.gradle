@@ -50,16 +50,26 @@ dependencies {
     // --- MySQL ---
     implementation 'com.mysql:mysql-connector-j:9.0.0'
 
-    // --- Testing ---
+    // ✅ --- Testing (JUnit 5 ya viene aquí) ---
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.mockito:mockito-core:5.11.0'
-    testImplementation 'org.mockito:mockito-junit-jupiter:5.11.0'
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.2'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.2'
+
+    // --- Mockito ---
+    testImplementation 'org.mockito:mockito-core:5.12.0'
+    testImplementation 'org.mockito:mockito-junit-jupiter:5.12.0'
 }
+
+
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+tasks.test {
+    useJUnitPlatform()
+    reports {
+        html.required.set(true)
+        junitXml.required.set(true)
+    }
 }
 
 jacoco {
@@ -84,6 +94,8 @@ sonarqube {
         property "sonar.host.url", "http://localhost:9000"
         property "sonar.login", "admin"
         property "sonar.password", "admin"
+
+        // --- Integración con JaCoCo ---
         property "sonar.java.coveragePlugin", "jacoco"
         property "sonar.junit.reportPaths", "build/test-results/test"
         property "sonar.jacoco.reportPaths", "build/jacoco/test.exec"
