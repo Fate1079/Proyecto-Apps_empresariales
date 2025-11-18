@@ -156,22 +156,7 @@ public class ReservaController {
         return ResponseEntity.ok(reservaService.obtenerReservasPorRecurso(recurso));
     }
 
-    @GetMapping("/rango")
-    @Operation(
-            summary = "Obtener reservas en un rango de fechas",
-            description = "Devuelve todas las reservas registradas entre dos fechas específicas."
-    )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Reservas encontradas en el rango de fechas"),
-            @ApiResponse(responseCode = "400", description = "Parámetros de fecha inválidos"),
-            @ApiResponse(responseCode = "404", description = "No se encontraron reservas en el rango indicado"),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
-    })
-    public ResponseEntity<List<ReservaDTO>> getReservasPorRangoFechas(
-            @RequestParam LocalDate inicio,
-            @RequestParam LocalDate fin) {
-        return ResponseEntity.ok(reservaService.obtenerReservasPorRangoFechas(inicio, fin));
-    }
+
 
     // -------- Utilitarios --------
     @GetMapping("/existe/{id}")
