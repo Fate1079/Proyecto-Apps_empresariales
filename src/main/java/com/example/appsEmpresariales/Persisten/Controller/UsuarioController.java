@@ -147,4 +147,36 @@ public class UsuarioController {
         boolean existe = usuarioService.existeUsuarioPorEmail(email);
         return ResponseEntity.ok(existe);
     }
+
+    // -------- Autenticación --------
+    @PostMapping("/login")
+    @Operation(
+            summary = "Autenticar usuario",
+            description = "Valida las credenciales de un usuario y devuelve su información si son correctas."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Autenticación exitosa"),
+            @ApiResponse(responseCode = "401", description = "Credenciales inválidas"),
+            @ApiResponse(responseCode = "400", description = "Datos inválidos en la solicitud")
+    })
+    public ResponseEntity<UsuarioDTO> login(
+            @RequestBody @Parameter(description = "Credenciales de acceso (email y contraseña)") LoginRequest request) {
+        UsuarioDTO usuario = usuarioService.autenticarUsuario(request.getEmail(), request.getContraseña());
+        if (usuario != null) {
+            return ResponseEntity.ok(usuario);
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+    }
+
+    // Clase interna para el request de login
+    public static class LoginRequest {
+        private String email;
+        private String contraseña;
+
+        public String getEmail() { return email; }
+        public void setEmail(String email) { this.email = email; }
+        public String getContraseña() { return contraseña; }
+        public void setContraseña(String contraseña) { this.contraseña = contraseña; }
+    }
 }

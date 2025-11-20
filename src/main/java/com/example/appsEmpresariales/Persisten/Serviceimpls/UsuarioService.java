@@ -47,11 +47,34 @@ public class UsuarioService {
     }
 
     public UsuarioDTO actualizarUsuario(UsuarioDTO usuarioDTO) {
-        if (!usuarioRepository.existsById(usuarioDTO.getId())) {
+        Optional<UsuarioEntity> usuarioExistenteOpt = usuarioRepository.findById(usuarioDTO.getId());
+        if (usuarioExistenteOpt.isEmpty()) {
             return null; // Not found
         }
-        UsuarioEntity entity = UsuarioMapper.toEntity(usuarioDTO);
-        UsuarioEntity actualizado = usuarioRepository.save(entity);
+
+        UsuarioEntity usuarioExistente = usuarioExistenteOpt.get();
+        
+        // Verificar si el email está siendo cambiado y si ya existe
+        if (!usuarioExistente.getEmail().equals(usuarioDTO.getEmail())) {
+            if (usuarioRepository.existsByEmail(usuarioDTO.getEmail())) {
+                throw new RuntimeException("El email ya está registrado.");
+            }
+        }
+
+        // Actualizar campos
+        usuarioExistente.setNombre(usuarioDTO.getNombre());
+        usuarioExistente.setApellido(usuarioDTO.getApellido());
+        usuarioExistente.setEmail(usuarioDTO.getEmail());
+        
+        // Solo actualizar contraseña si se proporciona una nueva
+        if (usuarioDTO.getContraseña() != null && !usuarioDTO.getContraseña().trim().isEmpty()) {
+            usuarioExistente.setContraseña(usuarioDTO.getContraseña());
+        }
+        
+        // El rol no se actualiza desde el perfil (solo admin puede cambiar roles)
+        // usuarioExistente.setRol(usuarioDTO.getRol());
+
+        UsuarioEntity actualizado = usuarioRepository.save(usuarioExistente);
         return UsuarioMapper.toDTO(actualizado);
     }
 
@@ -73,5 +96,12 @@ public class UsuarioService {
 
     public boolean existeUsuarioPorEmail(String email) {
         return usuarioRepository.existsByEmail(email);
+    }
+
+    // -------- Autenticación --------
+
+    public UsuarioDTO autenticarUsuario(String email, String contraseña) {
+        Optional<UsuarioEntity> usuarioOpt = usuarioRepository.findByEmailAndContraseña(email, contraseña);
+        return usuarioOpt.map(UsuarioMapper::toDTO).orElse(null);
     }
 }

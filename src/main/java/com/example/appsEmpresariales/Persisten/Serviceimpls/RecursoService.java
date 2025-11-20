@@ -21,6 +21,10 @@ public class RecursoService {
     }
 
     public RecursoDTO guardarRecurso(RecursoDTO recurso) {
+        // Si el ID viene null o vacío, se generará automáticamente por @GeneratedValue
+        if (recurso.getId() != null && recurso.getId().isEmpty()) {
+            recurso.setId(null);
+        }
         RecursoEntity entity = recursoMapper.toEntity(recurso);
         RecursoEntity guardado = recursoRepository.save(entity);
         return recursoMapper.toDto(guardado);

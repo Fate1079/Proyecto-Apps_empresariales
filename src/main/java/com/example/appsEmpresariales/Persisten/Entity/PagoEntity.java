@@ -8,6 +8,7 @@ import java.time.LocalDate;
 public class PagoEntity {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
     private double monto;
